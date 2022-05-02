@@ -11,3 +11,16 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+:root {
+  --si-text: #ffffff;
+  --si-text-dark: #2c2c2c;
+  --si-accent: #886DEC;
+  --si-btn-secondary-bg: #ffffff;
+  --si-btn-secondary-color: #444444;
+  --si-infi-border-color: var(--si-accent);
+  --si-valid-color: #66FF66;
+  --si-invalid-color: #FF0000;
+  --si-navbar-bg: var(--si-text);
+  --si-navbar-text: var(--si-text);
+}
