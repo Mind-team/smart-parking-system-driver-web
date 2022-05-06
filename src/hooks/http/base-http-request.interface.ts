@@ -1,4 +1,6 @@
+import { ContentType } from "./content-type.enum";
+
 export interface IBaseHttpRequest {
   readonly url: string;
-  readonly headers?: Record<string, string>;
+  headers?: Record<string, string> & { contentType?: ContentType };
 }

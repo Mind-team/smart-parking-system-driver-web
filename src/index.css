@@ -23,4 +23,5 @@ code {
   --si-invalid-color: #FF0000;
   --si-navbar-bg: var(--si-text);
   --si-navbar-text: var(--si-text);
+  --si-infi-disabled: #f3f3f3;
 }

@@ -5,3 +5,4 @@ export * from "./http-request.interface";
 export * from "./http-response-error.interface";
 export * from "./http.hook";
 export * from "./is-correct-response.utils";
+export * from "./content-type.enum";
