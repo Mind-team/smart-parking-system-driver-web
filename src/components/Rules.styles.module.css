@@ -1,0 +1,37 @@
+.wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 302px;
+    width: 928px;
+    background-color: #FFFFFF;
+    border-radius: 29px;
+    box-shadow: inset 0 0 0 2px rgba(1, 1, 1, 0.15),
+    inset 0 0 0 4px rgba(136, 109, 236, 0.68), 0 0 28px 0 rgba(0, 0, 0, 0.08);
+}
+
+.rulesWrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    width: 574px;
+}
+
+.lineWrapper {
+    display: flex;
+    align-items: center;
+}
+
+.lineNumber {
+    font-size: 40px;
+    color: red;
+}
+
+.lineDescription {
+    margin-left: 66px;
+    font-size: 18px;
+    padding-bottom: 12px;
+    padding-top: 12px;
+    color: red;
+}
