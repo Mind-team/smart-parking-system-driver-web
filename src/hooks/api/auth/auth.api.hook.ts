@@ -1,13 +1,14 @@
-import { useHttp, ContentType } from "../../http";
+import { ContentType, useHttp } from "../../http";
 import { useEndpoint } from "../endpoint.hook";
 import { SendConfirmationCodeRequestDto } from "./dto";
+import { ApiVersion } from "../apiVersion.enum";
 
 const req = useHttp();
 const endpoint = useEndpoint();
 
 const sendCode = async (
   body: SendConfirmationCodeRequestDto,
-  apiVersion: string,
+  apiVersion: ApiVersion,
 ) => {
   return await req<SendConfirmationCodeRequestDto, void>({
     method: "POST",
@@ -21,7 +22,9 @@ const sendCode = async (
 
 export const useAuthApi = () => {
   return {
-    sendCode: (body: SendConfirmationCodeRequestDto, appVersion?: string) =>
-      sendCode(body, appVersion ?? "v1"),
+    sendCode: (
+      body: SendConfirmationCodeRequestDto,
+      appVersion: ApiVersion = ApiVersion.v1,
+    ) => sendCode(body, appVersion),
   };
 };

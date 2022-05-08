@@ -3,6 +3,8 @@ import { LoginPage } from "./Login.page";
 import { useAuthApi } from "../../../../hooks/api/auth";
 import { useDriverApi } from "../../../../hooks/api/driver";
 import { useNavigate } from "react-router-dom";
+import { useStorage } from "../../../../hooks/storage";
+import { StorageToken } from "../../../../hooks/storage/storageToken.enum";
 
 export const LoginContainer = () => {
   const navigate = useNavigate();
@@ -29,9 +31,11 @@ export const LoginContainer = () => {
         if ("error" in response) {
           throw new Error("Sad");
         }
-        localStorage.setItem("access", response.accessToken);
-        localStorage.setItem("refresh", response.refreshToken);
-        navigate("/home", { state: response });
+        const { write } = useStorage();
+        write(StorageToken.AccessToken, response.accessToken);
+        write(StorageToken.RefreshToken, response.refreshToken);
+
+        navigate("/cabinet/home", { state: response });
       })
       .catch(() => setError(true));
   };

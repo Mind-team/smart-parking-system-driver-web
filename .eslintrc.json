@@ -23,7 +23,13 @@
     ],
     "rules": {
         "require-jsdoc": "off",
-        "indent": ["error", 2],
+        "indent": [
+            "error",
+            2,
+            {
+                "SwitchCase":  1
+            }
+        ],
         "no-unused-vars": "warn"
     }
 }
