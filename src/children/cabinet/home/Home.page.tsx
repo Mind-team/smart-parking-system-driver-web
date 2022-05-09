@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { RulesComponent } from "../../../components";
 import classes from "./Home.styles.module.css";
-import { useDriverApi } from "../../../hooks/api/driver";
-import { useModelFactory } from "../../../hooks/model/modelFactory.hook";
-import { ModelToken } from "../../../hooks/model/modelToken.enum";
-import { IParkingProcess } from "../../../hooks/model/models/parkingProcess.interface";
-import { ParkingWidget } from "sps-ui";
+import { LoginResponseDto, useDriverApi } from "../../../hooks/api/driver";
+import { ModelToken, useModelFactory } from "../../../hooks/model/factory";
+import { IDriver, IParkingProcess } from "../../../hooks/model/models";
+import { InfoWidget, ParkingWidget } from "sps-ui";
 
 export const HomePage = () => {
+  const modelFactory = useModelFactory();
+  const [userData, setUserData] = useState<IDriver>();
   const [lastParkingProcess, setLastParkingProcess] =
     useState<IParkingProcess>();
   const [isLoading, setLoading] = useState(true);
@@ -26,25 +27,23 @@ export const HomePage = () => {
         if ("error" in response) {
           throw new Error();
         }
-        const modelFactory = useModelFactory();
         const model = modelFactory<IParkingProcess>(
           ModelToken.ParkingProcess,
-          response.parking,
+          Array.isArray(response) ? response[0] : response,
         );
         setLastParkingProcess(model);
         setLoading(false);
       })
-      .catch(() => {
+      .catch((e) => {
+        console.log(e);
+        setLoading(false);
         setError(true);
       });
   };
 
   useEffect(() => {
     // @ts-ignore
-    const userData: {
-      currentParkingProcessId: string | null;
-      parkingProcessesIds: string[];
-    } = location.state;
+    const userData: LoginResponseDto = location.state;
     if (!userData) {
       driverApi
         .data()
@@ -56,7 +55,9 @@ export const HomePage = () => {
             throw new Error();
           }
 
-          const id = response.currentParkingProcessId
+          setUserData(modelFactory(ModelToken.Driver, response));
+
+          const id = response.currentParkingProcessesIds.length
             ? "current"
             : [...response.parkingProcessesIds].pop();
 
@@ -73,7 +74,8 @@ export const HomePage = () => {
         });
       return;
     } else {
-      const id = userData.currentParkingProcessId
+      setUserData(modelFactory(ModelToken.Driver, userData));
+      const id = userData.currentParkingProcessesIds.length
         ? "current"
         : [...userData.parkingProcessesIds].pop();
 
@@ -83,27 +85,48 @@ export const HomePage = () => {
         setLoading(false);
       }
 
-      // window.history.replaceState({}, document.title);
+      window.history.replaceState({}, document.title);
     }
   }, []);
 
   return (
     <div className={classes.wrapper}>
       {isError && <div>Какие-то проблемы</div>}
-      <RulesComponent />
+      <div className={classes.rulesWrapper}>
+        <RulesComponent />
+      </div>
       {isLoading && <div>Загрузка ваших паркингов</div>}
-      {lastParkingProcess && (
-        <ParkingWidget
-          size={"mini"}
-          data={{
-            parkingName: lastParkingProcess.parking.title as string,
-            date: lastParkingProcess.time.entry as string,
-            price: lastParkingProcess.payment?.value as number,
-            detailsClick: () => {},
-          }}
-        />
-      )}
-      {!lastParkingProcess && !isError && <div>У вас еще нет паркингов</div>}
+      <div className={classes.widgetsWrapper}>
+        {lastParkingProcess && (
+          <ParkingWidget
+            size={"mini"}
+            data={{
+              parkingName: lastParkingProcess.parking.title as string,
+              date: lastParkingProcess.time.entry as string,
+              price: lastParkingProcess.payment?.value as number,
+              detailsClick: () => {},
+            }}
+          />
+        )}
+        {!lastParkingProcess && !isError && <div>У вас еще нет паркингов</div>}
+        {!isError && userData && (
+          <div className={classes.miniWidgetsWrapper}>
+            <InfoWidget
+              size="mini"
+              data={{ leftSideText: "Ваша карта:", rightSideText: "8480" }}
+            />
+            <InfoWidget
+              size="mini"
+              data={{
+                leftSideText: "Ваш номер:",
+                rightSideText: userData.transportPlates.length
+                  ? userData.transportPlates[0]
+                  : ":(",
+              }}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 };

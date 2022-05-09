@@ -4,7 +4,7 @@ export interface LoginResponseDto {
   id: string;
   transportPlates: string[];
   parkingProcessesIds: string[];
-  currentParkingProcessId: string | null;
+  currentParkingProcessesIds: string[];
   personData?: {
     phone: string;
     email?: string;

@@ -24,5 +24,6 @@ code {
   --si-navbar-bg: var(--si-text);
   --si-navbar-text: var(--si-text-dark);
   --si-infi-disabled: #f3f3f3;
+  --si-widget-bg: var(--si-text);
   --sps-bg: #EFF1FB;
 }

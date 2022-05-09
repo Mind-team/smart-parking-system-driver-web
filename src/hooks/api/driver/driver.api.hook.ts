@@ -26,8 +26,10 @@ const parkingProcess = async (
   id: string | "current",
   apiVersion: ApiVersion,
 ) => {
-  console.log(id);
-  return await authReq<null, GetParkingProcessResponseDto>({
+  return await authReq<
+    null,
+    GetParkingProcessResponseDto | GetParkingProcessResponseDto[]
+  >({
     method: "GET",
     url: `${endpoint}/api/${apiVersion}/driver-person/parking-processes/${id}`,
     headers: {
