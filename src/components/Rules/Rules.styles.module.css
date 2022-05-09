@@ -25,7 +25,7 @@
 
 .lineNumber {
     font-size: 40px;
-    color: red;
+    color: var(--si-accent);
 }
 
 .lineDescription {
@@ -33,5 +33,5 @@
     font-size: 18px;
     padding-bottom: 12px;
     padding-top: 12px;
-    color: red;
+    color: var(--si-text-dark);
 }
