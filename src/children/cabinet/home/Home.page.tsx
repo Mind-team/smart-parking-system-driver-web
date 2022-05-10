@@ -97,15 +97,20 @@ export const HomePage = () => {
       </div>
       {isLoading && <div>Загрузка ваших паркингов</div>}
       <div className={classes.widgetsWrapper}>
-        {lastParkingProcess && (
+        {lastParkingProcess && lastParkingProcess.isCompleted && (
           <ParkingWidget
             size={"mini"}
-            data={{
-              parkingName: lastParkingProcess.parking.title as string,
-              date: lastParkingProcess.time.entry as string,
-              price: lastParkingProcess.payment?.value as number,
-              detailsClick: () => {},
-            }}
+            parkingName={lastParkingProcess.parking.title}
+            date={lastParkingProcess.time.entry}
+            price={lastParkingProcess.payment?.value as number}
+            detailsClick={() => {}}
+          />
+        )}
+        {lastParkingProcess && !lastParkingProcess.isCompleted && (
+          <ParkingWidget
+            size={"mini"}
+            price={lastParkingProcess.payment?.value.toFixed(2) as string}
+            detailsClick={() => {}}
           />
         )}
         {!lastParkingProcess && !isError && <div>У вас еще нет паркингов</div>}
@@ -113,16 +118,17 @@ export const HomePage = () => {
           <div className={classes.miniWidgetsWrapper}>
             <InfoWidget
               size="mini"
-              data={{ leftSideText: "Ваша карта:", rightSideText: "8480" }}
+              leftSideText="Ваша карта:"
+              rightSideText="8480"
             />
             <InfoWidget
               size="mini"
-              data={{
-                leftSideText: "Ваш номер:",
-                rightSideText: userData.transportPlates.length
+              leftSideText="Ваш номер:"
+              rightSideText={
+                userData.transportPlates.length
                   ? userData.transportPlates[0]
-                  : ":(",
-              }}
+                  : ":("
+              }
             />
           </div>
         )}

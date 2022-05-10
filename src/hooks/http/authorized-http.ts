@@ -21,6 +21,11 @@ export const useAuthorizedHttp = () => {
         StorageToken.AccessToken,
       )}`;
     }
-    return req(configObject);
+    return req<Req, Res>(configObject).then((response) => {
+      if ("statusCode" in response && response.statusCode === 401) {
+        console.log("Need to refresh token");
+      }
+      return response;
+    });
   };
 };
