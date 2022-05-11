@@ -21,10 +21,7 @@ export const HomePage = () => {
     driverApi
       .parkingProcess(id)
       .then((response) => {
-        if ("isEmptyResponse" in response) {
-          throw new Error();
-        }
-        if ("error" in response) {
+        if ("isEmptyResponse" in response || "error" in response) {
           throw new Error();
         }
         const model = modelFactory<IParkingProcess>(
@@ -34,8 +31,7 @@ export const HomePage = () => {
         setLastParkingProcess(model);
         setLoading(false);
       })
-      .catch((e) => {
-        console.log(e);
+      .catch(() => {
         setLoading(false);
         setError(true);
       });
@@ -84,8 +80,6 @@ export const HomePage = () => {
       } else {
         setLoading(false);
       }
-
-      window.history.replaceState({}, document.title);
     }
   }, []);
 
@@ -99,18 +93,20 @@ export const HomePage = () => {
       <div className={classes.widgetsWrapper}>
         {lastParkingProcess && lastParkingProcess.isCompleted && (
           <ParkingWidget
+            id={lastParkingProcess.id}
+            onClick={() => {}}
             size={"mini"}
             parkingName={lastParkingProcess.parking.title}
             date={lastParkingProcess.time.entry}
-            price={lastParkingProcess.payment?.value as number}
-            detailsClick={() => {}}
+            price={lastParkingProcess.payment?.value.toFixed(2) as string}
           />
         )}
         {lastParkingProcess && !lastParkingProcess.isCompleted && (
           <ParkingWidget
+            id={lastParkingProcess.id}
+            onClick={() => {}}
             size={"mini"}
             price={lastParkingProcess.payment?.value.toFixed(2) as string}
-            detailsClick={() => {}}
           />
         )}
         {!lastParkingProcess && !isError && <div>У вас еще нет паркингов</div>}

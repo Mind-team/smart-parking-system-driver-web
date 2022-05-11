@@ -25,11 +25,8 @@ export const LoginContainer = () => {
     driverApi
       .login({ phone: phoneNumberValue, confirmationCode: smsCode })
       .then((response) => {
-        if ("isEmptyResponse" in response) {
+        if ("isEmptyResponse" in response || "error" in response) {
           throw new Error("Empty");
-        }
-        if ("error" in response) {
-          throw new Error("Sad");
         }
         const { write } = useStorage();
         write(StorageToken.AccessToken, response.accessToken);
