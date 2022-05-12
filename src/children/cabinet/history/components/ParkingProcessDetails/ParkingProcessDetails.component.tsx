@@ -1,21 +1,15 @@
-import React, { useEffect } from "react";
-import { useFormatter } from "sps-ui";
+import React from "react";
+import { ErrorBanner, useFormatter } from "sps-ui";
 import classes from "./ParkingProcessDetails.styles.module.css";
 import { IParkingProcess } from "../../../../../hooks/model/models";
 import { useLocationState } from "../../../../../hooks/location";
 
 export const ParkingProcessDetails = () => {
-  const [data, clearLocationState] = useLocationState<IParkingProcess>();
+  const [data] = useLocationState<IParkingProcess>();
   const formatter = useFormatter();
 
-  useEffect(() => {
-    return () => {
-      clearLocationState();
-    };
-  }, []);
-
   if (!data) {
-    return <>:(</>;
+    return <ErrorBanner size="m" />;
   }
 
   return (

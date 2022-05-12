@@ -11,7 +11,6 @@ export const useLocationState = <T>(
     useEffect(() => {
       return () => {
         clearLocationState();
-        console.log("Cleared location state");
       };
     });
   }

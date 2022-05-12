@@ -3,7 +3,7 @@ import { useDriverApi } from "../../../hooks/api/driver";
 import { useState } from "react";
 import { IParkingProcess } from "../../../hooks/model/models";
 import { ModelToken, useModelFactory } from "../../../hooks/model/factory";
-import { ParkingWidget } from "sps-ui";
+import { ParkingWidget, Loader, ErrorBanner } from "sps-ui";
 import classes from "./History.styles.module.css";
 import { Sortbar } from "../../../components";
 import { useNavigate } from "react-router-dom";
@@ -11,11 +11,14 @@ import { useNavigate } from "react-router-dom";
 export const HistoryPage = () => {
   const navigate = useNavigate();
   const factory = useModelFactory();
+  const [isLoading, setLoading] = useState(true);
+  const [isError, setError] = useState(false);
   const [parkingProcesses, setParkingProcesses] = useState<IParkingProcess[]>();
   const parameters = ["Время", "Стоимость"];
 
   const getParkingProcesses = () => {
     const api = useDriverApi();
+    setLoading(true);
     api
       .parkingProcesses()
       .then((response) => {
@@ -26,8 +29,12 @@ export const HistoryPage = () => {
           return factory<IParkingProcess>(ModelToken.ParkingProcess, el);
         });
         setParkingProcesses(models);
+        setLoading(false);
       })
-      .catch(() => {});
+      .catch(() => {
+        setLoading(false);
+        setError(true);
+      });
   };
 
   const generateParameters = () => {
@@ -53,6 +60,22 @@ export const HistoryPage = () => {
   useEffect(() => {
     getParkingProcesses();
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className={classes.wrapper}>
+        <Loader />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className={classes.wrapper}>
+        <ErrorBanner size="m" />
+      </div>
+    );
+  }
 
   return (
     <div className={classes.wrapper}>

@@ -19,11 +19,14 @@ code {
   --si-btn-secondary-bg: #ffffff;
   --si-btn-secondary-color: #444444;
   --si-infi-border-color: var(--si-accent);
+  --si-infi-disabled: #f3f3f3;
   --si-valid-color: #66FF66;
   --si-invalid-color: #FF0000;
   --si-navbar-bg: var(--si-text);
   --si-navbar-text: var(--si-text-dark);
-  --si-infi-disabled: #f3f3f3;
   --si-widget-bg: var(--si-text);
+  --si-loader-color: var(--si-accent);
+  --si-error-banner-border: var(--si-invalid-color);
+  --si-error-banner-bg: #F8BDBD;
   --sps-bg: #EFF1FB;
 }
