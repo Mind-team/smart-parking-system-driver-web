@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
 import { RulesComponent } from "../../../components";
 import classes from "./Home.styles.module.css";
 import { LoginResponseDto, useDriverApi } from "../../../hooks/api/driver";
 import { ModelToken, useModelFactory } from "../../../hooks/model/factory";
 import { IDriver, IParkingProcess } from "../../../hooks/model/models";
-import { InfoWidget, ParkingWidget } from "sps-ui";
+import { InfoWidget, ParkingWidget, Loader, ErrorBanner } from "sps-ui";
+import { useLocationState } from "../../../hooks/location";
 
 export const HomePage = () => {
   const modelFactory = useModelFactory();
@@ -15,7 +15,7 @@ export const HomePage = () => {
   const [isLoading, setLoading] = useState(true);
   const [isError, setError] = useState(false);
   const driverApi = useDriverApi();
-  const location = useLocation();
+  const [locationState] = useLocationState<LoginResponseDto>();
 
   const getParkingProcess = (id: string | "current") => {
     driverApi
@@ -38,8 +38,7 @@ export const HomePage = () => {
   };
 
   useEffect(() => {
-    // @ts-ignore
-    const userData: LoginResponseDto = location.state;
+    const userData: LoginResponseDto = locationState;
     if (!userData) {
       driverApi
         .data()
@@ -83,13 +82,28 @@ export const HomePage = () => {
     }
   }, []);
 
+  if (isLoading) {
+    return (
+      <div className={classes.wrapper}>
+        <Loader />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className={classes.wrapper}>
+        <ErrorBanner size="m" />
+      </div>
+    );
+  }
+
   return (
     <div className={classes.wrapper}>
       {isError && <div>Какие-то проблемы</div>}
       <div className={classes.rulesWrapper}>
         <RulesComponent />
       </div>
-      {isLoading && <div>Загрузка ваших паркингов</div>}
       <div className={classes.widgetsWrapper}>
         {lastParkingProcess && lastParkingProcess.isCompleted && (
           <ParkingWidget
