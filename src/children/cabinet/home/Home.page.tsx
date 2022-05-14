@@ -4,7 +4,7 @@ import classes from "./Home.styles.module.css";
 import { LoginResponseDto, useDriverApi } from "../../../hooks/api/driver";
 import { ModelToken, useModelFactory } from "../../../hooks/model/factory";
 import { IDriver, IParkingProcess } from "../../../hooks/model/models";
-import { InfoWidget, ParkingWidget, Loader, ErrorBanner } from "sps-ui";
+import { InfoWidget, ParkingWidget, ErrorBanner, LoaderWrapper } from "sps-ui";
 import { useLocationState } from "../../../hooks/location";
 
 export const HomePage = () => {
@@ -12,10 +12,11 @@ export const HomePage = () => {
   const [userData, setUserData] = useState<IDriver>();
   const [lastParkingProcess, setLastParkingProcess] =
     useState<IParkingProcess>();
-  const [isLoading, setLoading] = useState(true);
   const [isError, setError] = useState(false);
   const driverApi = useDriverApi();
   const [locationState] = useLocationState<LoginResponseDto>();
+  const [isUserDataLoading, setUserDataLoading] = useState(true);
+  const [isParkingProcessLoading, setParkingProcessLoading] = useState(true);
 
   const getParkingProcess = (id: string | "current") => {
     driverApi
@@ -29,10 +30,10 @@ export const HomePage = () => {
           Array.isArray(response) ? response[0] : response,
         );
         setLastParkingProcess(model);
-        setLoading(false);
+        setParkingProcessLoading(false);
       })
       .catch(() => {
-        setLoading(false);
+        setParkingProcessLoading(false);
         setError(true);
       });
   };
@@ -51,25 +52,28 @@ export const HomePage = () => {
           }
 
           setUserData(modelFactory(ModelToken.Driver, response));
+          setUserDataLoading(false);
 
           const id = response.currentParkingProcessesIds.length
             ? "current"
             : [...response.parkingProcessesIds].pop();
 
           if (!id) {
-            setLoading(false);
+            setParkingProcessLoading(false);
             return;
           }
 
           getParkingProcess(id);
         })
         .catch(() => {
-          setLoading(false);
+          setParkingProcessLoading(false);
+          setUserDataLoading(false);
           setError(true);
         });
       return;
     } else {
       setUserData(modelFactory(ModelToken.Driver, userData));
+      setUserDataLoading(false);
       const id = userData.currentParkingProcessesIds.length
         ? "current"
         : [...userData.parkingProcessesIds].pop();
@@ -77,18 +81,10 @@ export const HomePage = () => {
       if (id) {
         getParkingProcess(id);
       } else {
-        setLoading(false);
+        setParkingProcessLoading(false);
       }
     }
   }, []);
-
-  if (isLoading) {
-    return (
-      <div className={classes.wrapper}>
-        <Loader />
-      </div>
-    );
-  }
 
   if (isError) {
     return (
@@ -105,43 +101,55 @@ export const HomePage = () => {
         <RulesComponent />
       </div>
       <div className={classes.widgetsWrapper}>
-        {lastParkingProcess && lastParkingProcess.isCompleted && (
-          <ParkingWidget
-            id={lastParkingProcess.id}
-            onClick={() => {}}
-            size={"mini"}
-            parkingName={lastParkingProcess.parking.title}
-            date={lastParkingProcess.time.entry}
-            price={lastParkingProcess.payment?.value.toFixed(2) as string}
-          />
-        )}
-        {lastParkingProcess && !lastParkingProcess.isCompleted && (
-          <ParkingWidget
-            id={lastParkingProcess.id}
-            onClick={() => {}}
-            size={"mini"}
-            price={lastParkingProcess.payment?.value.toFixed(2) as string}
-          />
-        )}
-        {!lastParkingProcess && !isError && <div>У вас еще нет паркингов</div>}
-        {!isError && userData && (
-          <div className={classes.miniWidgetsWrapper}>
-            <InfoWidget
-              size="mini"
-              leftSideText="Ваша карта:"
-              rightSideText="8480"
+        <LoaderWrapper
+          isLoading={isParkingProcessLoading}
+          elementSizes={{ widthCss: "434px", heightCss: "302px" }}
+        >
+          {lastParkingProcess && lastParkingProcess.isCompleted && (
+            <ParkingWidget
+              id={lastParkingProcess.id}
+              onClick={() => {}}
+              size={"mini"}
+              parkingName={lastParkingProcess.parking.title}
+              date={lastParkingProcess.time.entry}
+              price={lastParkingProcess.payment?.value.toFixed(2) as string}
             />
-            <InfoWidget
-              size="mini"
-              leftSideText="Ваш номер:"
-              rightSideText={
-                userData.transportPlates.length
-                  ? userData.transportPlates[0]
-                  : ":("
-              }
+          )}
+          {lastParkingProcess && !lastParkingProcess.isCompleted && (
+            <ParkingWidget
+              id={lastParkingProcess.id}
+              onClick={() => {}}
+              size={"mini"}
+              price={lastParkingProcess.payment?.value.toFixed(2) as string}
             />
-          </div>
+          )}
+        </LoaderWrapper>
+        {!isParkingProcessLoading && !lastParkingProcess && !isError && (
+          <div>У вас еще нет паркингов</div>
         )}
+        <LoaderWrapper
+          isLoading={isUserDataLoading}
+          elementSizes={{ widthCss: "434px", heightCss: "302px" }}
+        >
+          {!isError && userData && (
+            <div className={classes.miniWidgetsWrapper}>
+              <InfoWidget
+                size="mini"
+                leftSideText="Ваша карта:"
+                rightSideText="8480"
+              />
+              <InfoWidget
+                size="mini"
+                leftSideText="Ваш номер:"
+                rightSideText={
+                  userData.transportPlates.length
+                    ? userData.transportPlates[0]
+                    : ":("
+                }
+              />
+            </div>
+          )}
+        </LoaderWrapper>
       </div>
     </div>
   );
