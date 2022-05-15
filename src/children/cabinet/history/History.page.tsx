@@ -1,9 +1,14 @@
 import React, { useEffect } from "react";
 import { useDriverApi } from "../../../hooks/api/driver";
-import { useState } from "react";
 import { IParkingProcess } from "../../../hooks/model/models";
 import { ModelToken, useModelFactory } from "../../../hooks/model/factory";
-import { ParkingWidget, Loader, ErrorBanner } from "sps-ui";
+import {
+  ParkingWidget,
+  ErrorBanner,
+  useUpgradedState,
+  useErrorCode,
+  LoaderWrapper,
+} from "sps-ui";
 import classes from "./History.styles.module.css";
 import { Sortbar } from "../../../components";
 import { useNavigate } from "react-router-dom";
@@ -11,14 +16,16 @@ import { useNavigate } from "react-router-dom";
 export const HistoryPage = () => {
   const navigate = useNavigate();
   const factory = useModelFactory();
-  const [isLoading, setLoading] = useState(true);
-  const [isError, setError] = useState(false);
-  const [parkingProcesses, setParkingProcesses] = useState<IParkingProcess[]>();
   const parameters = ["Время", "Стоимость"];
+  const {
+    value: parkingProcesses,
+    setValue: setParkingProcesses,
+    isLoading: isParkingProcessesLoading,
+    isError: isParkingProcessesError,
+  } = useUpgradedState<IParkingProcess[]>([]);
 
   const getParkingProcesses = () => {
     const api = useDriverApi();
-    setLoading(true);
     api
       .parkingProcesses()
       .then((response) => {
@@ -29,11 +36,9 @@ export const HistoryPage = () => {
           return factory<IParkingProcess>(ModelToken.ParkingProcess, el);
         });
         setParkingProcesses(models);
-        setLoading(false);
       })
       .catch(() => {
-        setLoading(false);
-        setError(true);
+        setParkingProcesses(useErrorCode());
       });
   };
 
@@ -61,15 +66,7 @@ export const HistoryPage = () => {
     getParkingProcesses();
   }, []);
 
-  if (isLoading) {
-    return (
-      <div className={classes.wrapper}>
-        <Loader />
-      </div>
-    );
-  }
-
-  if (isError) {
+  if (isParkingProcessesError) {
     return (
       <div className={classes.wrapper}>
         <ErrorBanner size="m" />
@@ -82,17 +79,19 @@ export const HistoryPage = () => {
       <div className={classes.padding}>
         <Sortbar parameters={generateParameters()} click={handleFilterClick} />
       </div>
-      {parkingProcesses?.map((pp, key) => (
-        <ParkingWidget
-          id={pp.id}
-          size={"long"}
-          parkingName={pp.parking.title}
-          date={pp.time.entry}
-          price={pp.payment?.value.toFixed(2) as string}
-          onClick={handleClickOnParkingProcess}
-          key={key}
-        />
-      ))}
+      <LoaderWrapper isLoading={isParkingProcessesLoading}>
+        {parkingProcesses?.map((pp, key) => (
+          <ParkingWidget
+            id={pp.id}
+            size={"long"}
+            parkingName={pp.parking.title}
+            date={pp.time.entry}
+            price={pp.payment?.value.toFixed(2) as string}
+            onClick={handleClickOnParkingProcess}
+            key={key}
+          />
+        ))}
+      </LoaderWrapper>
     </div>
   );
 };

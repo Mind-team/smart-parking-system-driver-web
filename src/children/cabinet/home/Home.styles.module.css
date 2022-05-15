@@ -6,6 +6,10 @@
     align-self: center;
 }
 
+.alignItemsCenter {
+    align-items: center;
+}
+
 .rulesWrapper {
     margin-top: 20px;
 }

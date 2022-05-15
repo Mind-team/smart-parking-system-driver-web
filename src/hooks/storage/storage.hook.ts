@@ -1,7 +1,7 @@
 export const useStorage = () => {
-  const first = (key: string) => localStorage.getItem(key);
-  const second = (key: string, value: string) =>
+  const read = (key: string) => localStorage.getItem(key);
+  const write = (key: string, value: string) =>
     localStorage.setItem(key, value);
 
-  return { read: first, write: second };
+  return { read, write };
 };

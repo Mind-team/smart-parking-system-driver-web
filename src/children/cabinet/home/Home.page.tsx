@@ -1,22 +1,36 @@
-import React, { useEffect, useState } from "react";
-import { RulesComponent } from "../../../components";
+import React, { useEffect } from "react";
 import classes from "./Home.styles.module.css";
+import { RulesComponent } from "../../../components";
 import { LoginResponseDto, useDriverApi } from "../../../hooks/api/driver";
 import { ModelToken, useModelFactory } from "../../../hooks/model/factory";
 import { IDriver, IParkingProcess } from "../../../hooks/model/models";
-import { InfoWidget, ParkingWidget, ErrorBanner, LoaderWrapper } from "sps-ui";
 import { useLocationState } from "../../../hooks/location";
+import {
+  InfoWidget,
+  ParkingWidget,
+  ErrorBanner,
+  LoaderWrapper,
+  useUpgradedState,
+  useErrorCode,
+} from "sps-ui";
 
 export const HomePage = () => {
   const modelFactory = useModelFactory();
-  const [userData, setUserData] = useState<IDriver>();
-  const [lastParkingProcess, setLastParkingProcess] =
-    useState<IParkingProcess>();
-  const [isError, setError] = useState(false);
   const driverApi = useDriverApi();
+  const {
+    value: userData,
+    setValue: setUserData,
+    isLoading: isUserDataLoading,
+    isError: isUserDataError,
+  } = useUpgradedState<IDriver>();
+  const {
+    value: lastParkingProcess,
+    setValue: setLastParkingProcess,
+    isLoading: isParkingProcessLoading,
+    setLoading: setParkingProcessLoading,
+    isError: isLastParkingProcessError,
+  } = useUpgradedState<IParkingProcess>();
   const [locationState] = useLocationState<LoginResponseDto>();
-  const [isUserDataLoading, setUserDataLoading] = useState(true);
-  const [isParkingProcessLoading, setParkingProcessLoading] = useState(true);
 
   const getParkingProcess = (id: string | "current") => {
     driverApi
@@ -30,11 +44,9 @@ export const HomePage = () => {
           Array.isArray(response) ? response[0] : response,
         );
         setLastParkingProcess(model);
-        setParkingProcessLoading(false);
       })
       .catch(() => {
-        setParkingProcessLoading(false);
-        setError(true);
+        setLastParkingProcess(useErrorCode());
       });
   };
 
@@ -44,15 +56,11 @@ export const HomePage = () => {
       driverApi
         .data()
         .then((response) => {
-          if ("isEmptyResponse" in response) {
-            throw new Error();
-          }
-          if ("error" in response) {
+          if ("isEmptyResponse" in response || "error" in response) {
             throw new Error();
           }
 
           setUserData(modelFactory(ModelToken.Driver, response));
-          setUserDataLoading(false);
 
           const id = response.currentParkingProcessesIds.length
             ? "current"
@@ -66,14 +74,12 @@ export const HomePage = () => {
           getParkingProcess(id);
         })
         .catch(() => {
-          setParkingProcessLoading(false);
-          setUserDataLoading(false);
-          setError(true);
+          setUserData(useErrorCode());
+          setLastParkingProcess(useErrorCode());
         });
       return;
     } else {
       setUserData(modelFactory(ModelToken.Driver, userData));
-      setUserDataLoading(false);
       const id = userData.currentParkingProcessesIds.length
         ? "current"
         : [...userData.parkingProcessesIds].pop();
@@ -86,9 +92,9 @@ export const HomePage = () => {
     }
   }, []);
 
-  if (isError) {
+  if (isUserDataError || isLastParkingProcessError) {
     return (
-      <div className={classes.wrapper}>
+      <div className={`${classes.wrapper} ${classes.alignItemsCenter}`}>
         <ErrorBanner size="m" />
       </div>
     );
@@ -96,7 +102,6 @@ export const HomePage = () => {
 
   return (
     <div className={classes.wrapper}>
-      {isError && <div>Какие-то проблемы</div>}
       <div className={classes.rulesWrapper}>
         <RulesComponent />
       </div>
@@ -124,14 +129,14 @@ export const HomePage = () => {
             />
           )}
         </LoaderWrapper>
-        {!isParkingProcessLoading && !lastParkingProcess && !isError && (
+        {!isParkingProcessLoading && !lastParkingProcess && (
           <div>У вас еще нет паркингов</div>
         )}
         <LoaderWrapper
           isLoading={isUserDataLoading}
           elementSizes={{ widthCss: "434px", heightCss: "302px" }}
         >
-          {!isError && userData && (
+          {userData && (
             <div className={classes.miniWidgetsWrapper}>
               <InfoWidget
                 size="mini"
