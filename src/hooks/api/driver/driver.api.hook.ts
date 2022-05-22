@@ -6,9 +6,30 @@ import {
   LoginResponseDto,
 } from "./dto";
 import { ApiVersion } from "../apiVersion.enum";
+import { useAuthApi } from "../auth";
+import { useStorage, StorageToken } from "../../storage";
 
 const req = useHttp();
-const authReq = useAuthorizedHttp();
+const storage = useStorage();
+const authApi = useAuthApi();
+const authReq = useAuthorizedHttp(() => {
+  const refreshToken = storage.read(StorageToken.RefreshToken);
+  if (refreshToken) {
+    return authApi
+      .refreshToken({
+        refreshToken,
+      })
+      .then((response) => {
+        if ("isEmptyResponse" in response || "error" in response) {
+          return Promise.resolve(false);
+        }
+        storage.write(StorageToken.AccessToken, response.accessToken);
+        storage.write(StorageToken.RefreshToken, response.refreshToken);
+        return Promise.resolve(true);
+      });
+  }
+  return Promise.resolve(false);
+});
 const endpoint = useEndpoint();
 
 const login = async (body: LoginRequestDto, apiVersion: ApiVersion) => {

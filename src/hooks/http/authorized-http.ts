@@ -1,29 +1,43 @@
 import { IHttpRequest } from "./http-request.interface";
 import { IHttpResponseError } from "./http-response-error.interface";
 import { useHttp } from "./http.hook";
-import { useStorage } from "../storage";
-import { StorageToken } from "../storage/storageToken.enum";
+import { useStorage, StorageToken } from "../storage";
 
-export const useAuthorizedHttp = () => {
+const req = useHttp();
+const storage = useStorage();
+
+const addAuthorizationHeader = (config: IHttpRequest<any>) => {
+  const token = storage.read(StorageToken.AccessToken);
+  if (token) {
+    return {
+      ...config,
+      headers: {
+        ...config.headers,
+        Authorization: `Bearer ${token}`,
+      },
+    };
+  }
+  return config;
+};
+
+export const useAuthorizedHttp = (refreshToken?: () => Promise<boolean>) => {
   return async <Req, Res>(
     configObject: IHttpRequest<Req>,
   ): Promise<Res | IHttpResponseError | { isEmptyResponse: true }> => {
-    const req = useHttp();
-    const storage = useStorage();
-    if (
-      configObject &&
-      "headers" in configObject &&
-      storage.read(StorageToken.AccessToken)
-    ) {
-      // TODO:
-      // @ts-ignore
-      configObject.headers["Authorization"] = `Bearer ${storage.read(
-        StorageToken.AccessToken,
-      )}`;
+    if (!configObject) {
+      throw new Error("Не указан конфиг для запроса");
     }
-    return req<Req, Res>(configObject).then((response) => {
+    const updatedConfigObject = addAuthorizationHeader(configObject);
+    return req<Req, Res>(updatedConfigObject).then((response) => {
       if ("statusCode" in response && response.statusCode === 401) {
-        console.log("Need to refresh token");
+        if (refreshToken) {
+          return refreshToken().then((isUpdateTokens: boolean) => {
+            if (isUpdateTokens) {
+              return req<Req, Res>(addAuthorizationHeader(configObject));
+            }
+            return response;
+          });
+        }
       }
       return response;
     });

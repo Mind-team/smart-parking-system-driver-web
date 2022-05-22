@@ -1,6 +1,10 @@
 import { ContentType, useHttp } from "../../http";
 import { useEndpoint } from "../endpoint.hook";
-import { SendConfirmationCodeRequestDto } from "./dto";
+import {
+  RefreshTokenRequestDto,
+  RefreshTokenResponseDto,
+  SendConfirmationCodeRequestDto,
+} from "./dto";
 import { ApiVersion } from "../apiVersion.enum";
 
 const req = useHttp();
@@ -20,11 +24,27 @@ const sendCode = async (
   });
 };
 
+const refreshToken = async (
+  body: RefreshTokenRequestDto,
+  apiVersion: ApiVersion,
+) => {
+  return await req<RefreshTokenRequestDto, RefreshTokenResponseDto>({
+    method: "PUT",
+    url: `${endpoint}/api/${apiVersion}/auth/refresh`,
+    headers: {
+      contentType: ContentType.JSON,
+    },
+    body,
+  });
+};
+
 export const useAuthApi = () => {
   return {
     sendCode: (
       body: SendConfirmationCodeRequestDto,
       appVersion: ApiVersion = ApiVersion.v1,
     ) => sendCode(body, appVersion),
+    refreshToken: (body: RefreshTokenRequestDto, apiVersion = ApiVersion.v1) =>
+      refreshToken(body, apiVersion),
   };
 };
