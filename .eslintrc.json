@@ -31,5 +31,6 @@
             }
         ],
         "no-unused-vars": "warn"
-    }
+    },
+    "ignorePatterns": ["*d.ts", "*.svg", "*.css"]
 }
