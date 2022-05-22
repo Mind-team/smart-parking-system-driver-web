@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { LoginPage } from "./Login.page";
+import { useNavigate } from "react-router-dom";
 import { useAuthApi } from "../../../../hooks/api/auth";
 import { useDriverApi } from "../../../../hooks/api/driver";
-import { useNavigate } from "react-router-dom";
-import { useStorage } from "../../../../hooks/storage";
-import { StorageToken } from "../../../../hooks/storage/storageToken.enum";
+import { useStorage, StorageToken } from "../../../../hooks/storage";
 
 export const LoginContainer = () => {
   const navigate = useNavigate();
