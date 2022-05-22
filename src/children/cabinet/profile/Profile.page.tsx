@@ -41,7 +41,7 @@ export const ProfilePage = () => {
       )}
       {user.transportPlates.length > 1 && (
         <div>
-          <span> Ваши транспортные номера:</span>
+          <span> Ваши транспортные номера: </span>
           {user.transportPlates.map((plate, key) => (
             <span key={key}>{plate}</span>
           ))}
@@ -49,7 +49,7 @@ export const ProfilePage = () => {
       )}
       {user.transportPlates.length === 1 && (
         <div>
-          <span>Ваш транспортный номер:</span>
+          <span>Ваш транспортный номер: </span>
           <span>{user.transportPlates[0]}</span>
         </div>
       )}
