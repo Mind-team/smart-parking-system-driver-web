@@ -16,13 +16,13 @@ export const ParkingProcessDetails = () => {
     <div className={classes.wrapper}>
       <div className={classes.lineWrapper}>Паркинг: {data.parking.title}</div>
       <div className={classes.lineWrapper}>
-        Дата вьезда: {formatter("date", data.time.entry)}
+        Дата въезда: {formatter("date", data.time.entry)}
       </div>
       <div className={classes.lineWrapper}>
         Дата выезда: {formatter("date", data.time.departure)}
       </div>
       <div className={classes.lineWrapper}>
-        Время вьезда: {formatter("time", data.time.entry)}
+        Время въезда: {formatter("time", data.time.entry)}
       </div>
       <div className={classes.lineWrapper}>
         Время выезда: {formatter("time", data.time.departure)}
