@@ -35,7 +35,7 @@ export const ProfilePage = () => {
 
   return (
     <div className={classes.wrapper}>
-      <div>Номер телефон: {user.personData.phone}</div>
+      <div>Номер телефона: {user.personData.phone}</div>
       {user.personData.email && (
         <div>Электронная почта: {user.personData.email}</div>
       )}
