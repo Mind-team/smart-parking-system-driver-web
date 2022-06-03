@@ -81,15 +81,16 @@ export const HistoryPage = () => {
       </div>
       <LoaderWrapper isLoading={isParkingProcessesLoading}>
         {parkingProcesses?.map((pp, key) => (
-          <ParkingWidget
-            id={pp.id}
-            size={"long"}
-            parkingName={pp.parking.title}
-            date={pp.time.entry}
-            price={pp.payment?.value.toFixed(2) as string}
-            onClick={handleClickOnParkingProcess}
-            key={key}
-          />
+          <div className={classes.paddingM} key={key}>
+            <ParkingWidget
+              id={pp.id}
+              size={"long"}
+              parkingName={pp.parking.title}
+              date={pp.time.entry}
+              price={pp.payment?.value.toFixed(2) as string}
+              onClick={handleClickOnParkingProcess}
+            />
+          </div>
         ))}
       </LoaderWrapper>
     </div>
