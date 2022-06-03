@@ -7,6 +7,7 @@ import { HistoryPage } from "./children/cabinet/history/History.page";
 import { CabinetLayout } from "./children/cabinet/Cabinet.layout";
 import { ParkingProcessDetails } from "./children/cabinet/history/components/ParkingProcessDetails/ParkingProcessDetails.component";
 import { ProfilePage } from "./children/cabinet/profile/Profile.page";
+import { AuthGuard } from "./guards";
 
 function App() {
   return (
@@ -15,11 +16,13 @@ function App() {
         <Route path="auth">
           <Route path="login" element={<LoginContainer />} />
         </Route>
-        <Route path="cabinet" element={<CabinetLayout />}>
-          <Route path="home" element={<HomePage />} />
-          <Route path="history" element={<HistoryPage />} />
-          <Route path="history/:id" element={<ParkingProcessDetails />} />
-          <Route path="profile" element={<ProfilePage />} />
+        <Route element={<AuthGuard />}>
+          <Route path="cabinet" element={<CabinetLayout />}>
+            <Route path="home" element={<HomePage />} />
+            <Route path="history" element={<HistoryPage />} />
+            <Route path="history/:id" element={<ParkingProcessDetails />} />
+            <Route path="profile" element={<ProfilePage />} />
+          </Route>
         </Route>
         <Route path="*" element={<Navigate to="auth/login" replace />} />
       </Routes>

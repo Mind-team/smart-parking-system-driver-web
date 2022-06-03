@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocationState } from "../../../hooks/location";
+import { useLocationState, useLogout } from "../../../hooks/location";
 import { IDriver } from "../../../hooks/model/models";
 import { isAnonDriver } from "../../../utils";
 import { useDriverApi } from "../../../hooks/api/driver";
@@ -9,6 +9,7 @@ import classes from "./Profile.styles.module.css";
 export const ProfilePage = () => {
   const modelFactory = useModelFactory();
   const [user, setUser] = useState<IDriver>();
+  const logout = useLogout();
   const [stateFromLocation] = useLocationState<IDriver>();
   const driverApi = useDriverApi();
 
@@ -53,6 +54,9 @@ export const ProfilePage = () => {
           <span>{user.transportPlates[0]}</span>
         </div>
       )}
+      <div className={classes.cursorPointer} onClick={logout}>
+        Выйти
+      </div>
     </div>
   );
 };

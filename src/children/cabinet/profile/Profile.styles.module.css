@@ -10,3 +10,7 @@
 .wrapper div {
     padding: 8px;
 }
+
+.cursorPointer {
+    cursor: pointer;
+}
